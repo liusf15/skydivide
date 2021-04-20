@@ -6,7 +6,6 @@
 #' @export
 #'
 #' @examples test_fun(c(1, 2, 3))
-
-test2 = function(x){
+test2 <- function(x) {
   stats::median(x)
 }
