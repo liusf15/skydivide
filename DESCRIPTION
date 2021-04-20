@@ -20,3 +20,5 @@ Imports:
     ggplot2,
     phylodyn,
     stats
+URL: https://github.com/liusf15/skydive
+BugReports: https://github.com/liusf15/skydive/issues
