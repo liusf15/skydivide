@@ -39,6 +39,7 @@ Gaussian.approx = function(f.all){
 #' @examples test_fun(1)
 Weiszfeld = function(f.all, maxiter = 1000){
   K = dim(f.all)[1]
+  cat("K=", K, "\n")
   recon.len = dim(f.all)[2]
   num.samples = dim(f.all)[3]
   mu.mean = apply(f.all, c(1, 2), mean)
@@ -59,7 +60,7 @@ Weiszfeld = function(f.all, maxiter = 1000){
   return(omega)
 }
 
-#' test
+#' combine by debiasing
 #'
 #' @param logpath a list of paths of the log files
 #' @param treepath a list of paths of the tree files
@@ -73,22 +74,31 @@ Weiszfeld = function(f.all, maxiter = 1000){
 #' @return time points and the corresponding population sizes
 #' @export
 #'
-combine.debiased = function(logpath, treepath, skip = 3, tree.prior = "skyline", recon.len = 100, M = 15){
+combine.debiased = function(logpath, treepath, skip = 3, tree.prior = "skyline", num.samples = 1000, recon.len = 100, M = 15){
   K = length(logpath)
+  f.log = list()
+  t.all = list()
+  group.size = list()
+  treefiles = list()
+  n = 0
   for(i in 1:K){ # read in data
-    tmp = read.delim(file=logpath[[i]], skip = skip, header = TRUE, nrows = num.samples)
+    tmp = read.table(file=logpath[[i]], skip = skip, header = TRUE)
+    total.len = dim(tmp)[1]
+    print(total.len)
+    tmp = tmp[(total.len - num.samples + 1) : total.len, ]
     if (tree.prior == "skyline")
       pop.idx = grep("*popSize*", names(tmp))
     if (tree.prior == "skyride")
       pop.idx = grep("*logPopSize*", names(tmp))
-    f.log[[i]] = tmp[, pop.idx]
+    f.log[[i]] = tmp[1:num.samples, pop.idx]
     if (tree.prior == "skyline")
       f.log[[i]] = log(f.log[[i]])
     group.idx = grep("*groupSize*", names(tmp))
     group.size[[i]] = tmp[, group.idx]
-    tmp = read.nexus(treepath[[i]])
+    tmp = ape::read.nexus(treepath[[i]])
     treefiles[[i]] = tmp[(length(tmp) - num.samples + 1) : length(tmp)]
     t.all[[i]] = matrix(0, treefiles[[i]][[1]]$Nnode, num.samples)
+    n = n + treefiles[[i]][[1]]$Nnode + 1
   }
 
   coaltimes.comb = matrix(0, num.samples, n - K)  # put all the coalescent times together
@@ -98,7 +108,7 @@ combine.debiased = function(logpath, treepath, skip = 3, tree.prior = "skyline",
     subset.idx = c()
 
     for(j in 1:K){
-      t.sub = cumsum(coalescent.intervals(treefiles[[j]][[i]])$interval.length)
+      t.sub = cumsum(ape::coalescent.intervals(treefiles[[j]][[i]])$interval.length)
       # t.all[[j]][, i] = t.sub
       coal.tmp = c(coal.tmp, t.sub)
       subset.idx = c(subset.idx, rep(j, length(t.sub)))
@@ -123,7 +133,7 @@ combine.debiased = function(logpath, treepath, skip = 3, tree.prior = "skyline",
       lineage.sub[, j] = lineage.tmp
       c.sub[, j] = lineage.tmp * (lineage.tmp - 1) / 2
 
-      t.sub = cumsum(coalescent.intervals(treefiles[[j]][[i]])$interval.length)
+      t.sub = cumsum(ape::coalescent.intervals(treefiles[[j]][[i]])$interval.length)
       N.sub = exp(rep(unlist(f.log[[j]][i, ]), group.size[[j]][i, ]))  # log to normal scale
       N.all[, j] = N.standardize(t.sub, N.sub, coal.tmp)
     }
@@ -150,8 +160,24 @@ combine.debiased = function(logpath, treepath, skip = 3, tree.prior = "skyline",
   return(list(time.grid.recon, N.recon))
 }
 
-combine.debiased.hetero = function(logpath, treepath, num.samples = 1000, recon.len = 100){
+#' combine by debiasing, heterochronous time
+#'
+#' @param logpath a list of paths of the log files
+#' @param treepath a list of paths of the tree files
+#' @param M number of groups in skyline
+#' @param fct a scaling factor, the population sizes and times are multiplied by fct #TODO: add fct
+#' @param skip number of rows to skip when reading the log files
+#' @param tree.prior c("skyline", "skyride") #TODO: add skygrid
+#' @param num.samples number of samples (from the last sample) to use
+#' @param recon.len number of grid points for the reconstructed population size
+#'
+#' @return time points and the corresponding population sizes
+#' @export
+#'
+combine.debiased.hetero = function(logpath, treepath, time.offset = NULL, tree.prior = "skyline", num.samples = 1000, recon.len = 100, skip = 3){
   K = length(logpath)
+  if(is.null(time.offset))
+    time.offset = rep(0, K)
   f.log = list()
   t.all = list()
   group.size = list()
@@ -162,28 +188,38 @@ combine.debiased.hetero = function(logpath, treepath, num.samples = 1000, recon.
   # K = length(subset.list)
   for(k in 1:K){ # read in data
     cat("Read subset", k, "\n")
-    tmp = read.delim(file=logpath[[k]], skip = 3, header = TRUE)
+    tmp = read.table(file=logpath[[k]], skip = skip, header = TRUE)
     total.len = dim(tmp)[1]
+    if(num.samples > total.len)
+      num.samples = total.len
     print(total.len)
     tmp = tmp[(total.len - num.samples + 1) : total.len, ]
-    pop.idx = grep("*logPopSize*", names(tmp))
-    f.log[[k]] = tmp[, pop.idx]
+    if (tree.prior == "skyline")
+      pop.idx = grep("*popSize*", names(tmp))
+    if (tree.prior == "skyride")
+      pop.idx = grep("*logPopSize*", names(tmp))
+    f.log[[k]] = tmp[1:num.samples, pop.idx]
+    if (tree.prior == "skyline")
+      f.log[[k]] = log(f.log[[k]])
+
+    # pop.idx = grep("*logPopSize*", names(tmp))
+    # f.log[[k]] = tmp[, pop.idx]
     group.idx = grep("*groupSize*", names(tmp))
     group.size[[k]] = tmp[, group.idx]
-    tmp = read.nexus(treepath[[k]])
+    tmp = ape::read.nexus(treepath[[k]])
     treefiles[[k]] = tmp[(length(tmp) - num.samples + 1) : length(tmp)]
     t.all[[k]] = matrix(0, treefiles[[k]][[1]]$Nnode, num.samples)
     n = n + treefiles[[k]][[1]]$Nnode + 1
   }
-  # align times
-  tip.times = c()
-  for(i in 1:K){
-    all_dates = matrix(unlist(strsplit(treefiles[[i]][[1]]$tip.label, split = "\\|")), ncol=3, byrow=TRUE)[, 3]
-    all_dates = decimal_date(as.Date(all_dates))
-    tip.times = c(tip.times, max(all_dates))
-  }
-  last.time = max(tip.times)
-  time.offset = last.time - tip.times
+  # # align times
+  # tip.times = c()
+  # for(i in 1:K){
+  #   all_dates = matrix(unlist(strsplit(treefiles[[i]][[1]]$tip.label, split = "\\|")), ncol=3, byrow=TRUE)[, 3]
+  #   all_dates = decimal_date(as.Date(all_dates))
+  #   tip.times = c(tip.times, max(all_dates))
+  # }
+  # last.time = max(tip.times)
+  # time.offset = last.time - tip.times
 
   f.all = array(0, dim = c(K, n - K, num.samples))
 
@@ -199,7 +235,7 @@ combine.debiased.hetero = function(logpath, treepath, num.samples = 1000, recon.
     lineages.sub = c()
     coaltimes.sub = c()
     for(j in 1:K){
-      t.sub = summarize_phylo(treefiles[[j]][[i]])
+      t.sub = phylodyn::summarize_phylo(treefiles[[j]][[i]])
       coal.sub = t.sub$coal_times + time.offset[j]
       coaltimes.sub[[j]] = coal.sub
       samp.sub = t.sub$samp_times + time.offset[j]
