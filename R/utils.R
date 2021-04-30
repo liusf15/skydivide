@@ -38,8 +38,10 @@ N.standardize = function(t.i, N.i, time.grid){
 #' @return f.all
 #' @export
 #'
-process.beast.logs = function(logpath, treepath = NULL, M = 15, fct = 1, skip = 3, tree.prior = "skyline", num.samples = 1000, recon.len = 30, coal.return = FALSE){
+process.beast.logs = function(logpath, treepath = NULL, M = 15, time.offset = NULL, fct = 1, skip = 3, tree.prior = "skyline", num.samples = 1000, recon.len = 100, coal.return = FALSE){
   K = length(logpath)
+  if(is.null(time.offset))
+    time.offset = rep(0, K)
   if (tree.prior %in% c("skyline", "skyride")){
     f.log = list()
     t.all = list()
@@ -47,7 +49,7 @@ process.beast.logs = function(logpath, treepath = NULL, M = 15, fct = 1, skip = 
     treefiles = list()
     # read in the log and trees
     for(i in 1:K){
-      tmp = read.delim(file=logpath[[i]], skip = skip, header = TRUE)
+      tmp = read.table(file=logpath[[i]], skip = skip, header = TRUE)
       if (tree.prior == "skyride"){
         pop.idx = grep("*logPopSize*", names(tmp))
       }
@@ -56,6 +58,8 @@ process.beast.logs = function(logpath, treepath = NULL, M = 15, fct = 1, skip = 
         pop.idx = grep("*popSize*", names(tmp))
       }
       tot.len = dim(tmp)[1]
+      if (num.samples > tot.len)
+        num.samples = tot.len
       tmp = tmp[(tot.len - num.samples + 1) : tot.len, ]
       if (tree.prior == "skyride"){
         f.log[[i]] = tmp[, pop.idx] + log(fct)
@@ -66,7 +70,7 @@ process.beast.logs = function(logpath, treepath = NULL, M = 15, fct = 1, skip = 
       }
       group.idx = grep("*groupSize*", names(tmp))
       group.size[[i]] = tmp[, group.idx]
-      tmp = read.nexus(treepath[[i]])
+      tmp = ape::read.nexus(treepath[[i]])
       treefiles[[i]] = tmp[(length(tmp) - num.samples + 1) : length(tmp)]
       t.all[[i]] = matrix(0, treefiles[[i]][[1]]$Nnode, num.samples)
     }
@@ -75,7 +79,9 @@ process.beast.logs = function(logpath, treepath = NULL, M = 15, fct = 1, skip = 
     tmp = c()
     for(j in 1:K){
       for(i in 1:num.samples){
-        t.sub = cumsum(coalescent.intervals(treefiles[[j]][[i]])$interval.length) * fct
+        t.tmp = phylodyn::summarize_phylo(treefiles[[j]][[i]])
+        t.sub = t.tmp$coal_times + time.offset[j]
+        # t.sub = cumsum(ape::coalescent.intervals(treefiles[[j]][[i]])$interval.length) * fct
 
         t.all[[j]][, i] = t.sub
       }
@@ -104,3 +110,35 @@ process.beast.logs = function(logpath, treepath = NULL, M = 15, fct = 1, skip = 
   else
     return(list(f.all, t.all, cutoff))
 }
+
+#' plot function
+#'
+#' @param res.skydive output of combine function
+#' @param fig.title title of the figure
+#' @return a ggplot2 figure
+#' @export
+#'
+plot_skydive = function(res.skydive, fig.title = "", ylim = c(0.1, 1e5)){
+  time.grid.recon = res.skydive[[1]]
+  N.quant.debiased = res.skydive[[2]]
+  # N.quant.debiased = data.frame(med = apply(N.recon, 2, quantile, prob = 0.5),
+  #                               lo = apply(N.recon, 2, quantile, prob = 0.025),
+  #                               hi = apply(N.recon, 2, quantile, prob = 0.975, na.rm = TRUE))
+
+  fig = ggplot2::ggplot(N.quant.debiased, ggplot2::aes(x = time.grid.recon, y = med)) +
+    ggplot2::geom_line(size = 2) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = lo, ymax = hi), alpha = 0.2) +
+    ggplot2::scale_y_log10() +
+    ggplot2::scale_x_reverse() +
+    ggplot2::ylab("N(t)") +
+    ggplot2::xlab("Time to present") +
+    ggplot2::ggtitle(fig.title) +
+    ggplot2::theme(legend.position="none",
+          axis.text=ggplot2::element_text(size = 20),
+          axis.title=ggplot2::element_text(size = 20),
+          plot.title = ggplot2::element_text(size = 20)) +
+    ggplot2::coord_cartesian(ylim = ylim)
+  return(fig)
+}
+
+

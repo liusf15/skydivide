@@ -8,11 +8,12 @@ process.beast.logs(
   logpath,
   treepath = NULL,
   M = 15,
+  time.offset = NULL,
   fct = 1,
   skip = 3,
   tree.prior = "skyline",
   num.samples = 1000,
-  recon.len = 30,
+  recon.len = 100,
   coal.return = FALSE
 )
 }
