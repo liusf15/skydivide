@@ -1,12 +1,13 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# skydive
+# skydivide
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of skydive is to …
+The goal of skydive is to combine distributed MCMC samples in
+phylodynamics.
 
 ## Installation
 
@@ -14,14 +15,14 @@ You can install the released version of skydive from
 [CRAN](https://CRAN.R-project.org) with:
 
 ``` r
-install.packages("skydive")
+install.packages("skydivde")
 ```
 
 And the development version from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("liusf15/skydive")
+devtools::install_github("liusf15/skydivide")
 ```
 
 ## Example
@@ -29,7 +30,7 @@ devtools::install_github("liusf15/skydive")
 This is a basic example which shows you how to solve a common problem:
 
 ``` r
-library(skydive)
+library(skydivide)
 ## basic example code
 ```
 

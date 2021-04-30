@@ -13,12 +13,12 @@ knitr::opts_chunk$set(
 )
 ```
 
-# skydive
+# skydivide
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of skydive is to ...
+The goal of skydive is to combine distributed MCMC samples in phylodynamics. 
 
 ## Installation
 
@@ -39,7 +39,7 @@ devtools::install_github("liusf15/skydive")
 This is a basic example which shows you how to solve a common problem:
 
 ```{r example}
-library(skydive)
+library(skydivide)
 ## basic example code
 ```
 
