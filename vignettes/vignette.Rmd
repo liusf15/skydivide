@@ -15,5 +15,53 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-library(skydive)
+library(skydivide)
+library(ggplot2)
 ```
+
+```{r }
+logpath = list("inst/extdata/s1.log", "inst/extdata/s2.log") # a list of log file names, output of BEAST
+treepath = list("inst/extdata/s1.trees", "inst/extdata/s2.trees") # a list of tree file names, output of BEAST
+logpath = list(system.file("extdata", "s1.log", package = "skydive"),
+               system.file("extdata", "s2.log", package = "skydive"))
+treepath = list(system.file("extdata", "s1.trees", package = "skydive"),
+               system.file("extdata", "s2.trees", package = "skydive"))
+# combine using skydive
+# res.skydive = combine(logpath, treepath, algo = "debias", num.samples = 100, time.offset = rep(0, 2), skip = 3, tree.prior = "skyline")
+# fig = plot_skydive(res.skydive, "title", ylim = c(0.01, 10))
+# fig
+# # combine using Gaussian approximation
+# res.gaussian = skydive::combine(logpath, treepath, algo = "gaussian", skip = 3, tree.prior = "skyline", fct = 1, time.offset = rep(0, 2))
+# fig = plot_skydive(res.gaussian, "title", ylim = c(0.01, 10))
+# fig
+# combine using Weiszfeld algorithm
+res.weiszfeld = combine(logpath, treepath, algo = "weiszfeld", skip = 3, tree.prior = "skyline", fct = 1, time.offset = rep(0, 2))
+fig = plot_skydive(res.weiszfeld, "title", ylim = c(0.01, 10))
+fig
+```
+
+
+```{r}
+# n = 50
+# mu = 10
+# K = 2
+# seed = 1
+# logpath = list()
+# treepath = list()
+# traj = "const"
+# for(k in 1:K){
+#   logpath[[k]] = sprintf("/Users/sifanliu/Dropbox/Projects/Scalable Bayesian/scalable_mcmc/Rcode/simulations/skyline/samp_res/samp_n_%d_mu_%d_K_%d_seed_%d_%ssub%d.log", n, mu, K, seed, traj, k)
+#   treepath[[k]] = sprintf("/Users/sifanliu/Dropbox/Projects/Scalable Bayesian/scalable_mcmc/Rcode/simulations/skyline/samp_res/samp_n_%d_mu_%d_K_%d_seed_%d_%ssub%d.trees", n, mu, K, seed, traj, k)
+# }
+# res = combine(logpath, treepath, "debias",  time.offset = rep(0, 2))
+
+```
+
+
+
+
+
+
+
+
+
