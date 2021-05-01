@@ -1,4 +1,4 @@
 library(testthat)
-library(skydive)
+library(skydivide)
 
-test_check("skydive")
+test_check("skydivide")
