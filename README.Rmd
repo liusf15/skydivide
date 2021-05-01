@@ -35,7 +35,7 @@ And the development version from [GitHub](https://github.com/) with:
 devtools::install_github("liusf15/skydivide")
 ```
 
-The example can be found in the vignette(vignettes/vignette.Rmd)
+The example can be found in the [vignette](vignettes/vignette.Rmd)
 
 <!-- ## Example -->
 
