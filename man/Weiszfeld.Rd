@@ -17,6 +17,3 @@ reconstructed population size
 \description{
 Weiszfeld algorithm
 }
-\examples{
-test_fun(1)
-}

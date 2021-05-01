@@ -2,11 +2,12 @@
 % Please edit documentation in R/combine.R
 \name{combine.debiased.hetero}
 \alias{combine.debiased.hetero}
-\title{combine by debiasing, heterochronous time}
+\title{combine by the debiasing procedure}
 \usage{
 combine.debiased.hetero(
   logpath,
   treepath,
+  fct = 1,
   time.offset = NULL,
   tree.prior = "skyline",
   num.samples = 1000,
@@ -19,6 +20,10 @@ combine.debiased.hetero(
 
 \item{treepath}{a list of paths of the tree files}
 
+\item{fct}{a scaling factor, the population sizes and times are multiplied by fct #TODO: add fct}
+
+\item{time.offset}{a vector of length K, to be added to the times of each subsets}
+
 \item{tree.prior}{c("skyline", "skyride") #TODO: add skygrid}
 
 \item{num.samples}{number of samples (from the last sample) to use}
@@ -26,14 +31,10 @@ combine.debiased.hetero(
 \item{recon.len}{number of grid points for the reconstructed population size}
 
 \item{skip}{number of rows to skip when reading the log files}
-
-\item{M}{number of groups in skyline}
-
-\item{fct}{a scaling factor, the population sizes and times are multiplied by fct #TODO: add fct}
 }
 \value{
-time points and the corresponding population sizes
+a time grid of length recon.len and the reconstructed population sizes at corresponding time grids
 }
 \description{
-combine by debiasing, heterochronous time
+combine by the debiasing procedure
 }

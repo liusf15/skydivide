@@ -2,18 +2,17 @@
 % Please edit documentation in R/utils.R
 \name{process.beast.logs}
 \alias{process.beast.logs}
-\title{test}
+\title{preprocess the output files of BEAST}
 \usage{
 process.beast.logs(
   logpath,
   treepath = NULL,
-  M = 15,
-  time.offset = NULL,
   fct = 1,
-  skip = 3,
+  time.offset = NULL,
   tree.prior = "skyline",
   num.samples = 1000,
   recon.len = 100,
+  skip = 3,
   coal.return = FALSE
 )
 }
@@ -22,11 +21,9 @@ process.beast.logs(
 
 \item{treepath}{a list of paths of the tree files}
 
-\item{M}{number of groups in skyline}
-
 \item{fct}{a scaling factor, the population sizes and times are multiplied by fct}
 
-\item{skip}{number of rows to skip when reading the log files}
+\item{time.offset}{a vector of length K, to be added to the times of each subsets}
 
 \item{tree.prior}{c("skyline", "skyride") #TODO: add skygrid}
 
@@ -34,11 +31,13 @@ process.beast.logs(
 
 \item{recon.len}{number of grid points for the reconstructed population size}
 
+\item{skip}{number of rows to skip when reading the log files}
+
 \item{coal.return}{return coalescent times or not}
 }
 \value{
 f.all
 }
 \description{
-test
+preprocess the output files of BEAST
 }

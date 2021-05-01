@@ -23,22 +23,22 @@ N.standardize = function(t.i, N.i, time.grid){
   return(N.recon)
 }
 
-#' test
+#' preprocess the output files of BEAST
 #'
 #' @param logpath a list of paths of the log files
 #' @param treepath a list of paths of the tree files
-#' @param M number of groups in skyline
 #' @param fct a scaling factor, the population sizes and times are multiplied by fct
-#' @param skip number of rows to skip when reading the log files
+#' @param time.offset a vector of length K, to be added to the times of each subsets
 #' @param tree.prior c("skyline", "skyride") #TODO: add skygrid
 #' @param num.samples number of samples (from the last sample) to use
 #' @param recon.len number of grid points for the reconstructed population size
+#' @param skip number of rows to skip when reading the log files
 #' @param coal.return return coalescent times or not
 #'
 #' @return f.all
 #' @export
 #'
-process.beast.logs = function(logpath, treepath = NULL, M = 15, time.offset = NULL, fct = 1, skip = 3, tree.prior = "skyline", num.samples = 1000, recon.len = 100, coal.return = FALSE){
+process.beast.logs = function(logpath, treepath = NULL, fct = 1, time.offset = NULL, tree.prior = "skyline", num.samples = 1000, recon.len = 100, skip = 3, coal.return = FALSE){
   K = length(logpath)
   if(is.null(time.offset))
     time.offset = rep(0, K)
@@ -95,15 +95,15 @@ process.beast.logs = function(logpath, treepath = NULL, M = 15, time.offset = NU
       }
     }
   }
-
-  if (tree.prior == "skygrid"){
-    f.all = array(0, dim = c(K, M, num.samples))
-    # read in the log and trees
-    for(i in 1:K){
-      tmp = read.delim(file=logpath[[i]], skip = 4, header = TRUE, nrows = num.samples)
-      f.all[i, , ] = t(tmp[, 8:(7 + M)] + log(fct))
-    }
-  }
+  # TODO: skygrid
+  # if (tree.prior == "skygrid"){
+  #   f.all = array(0, dim = c(K, M, num.samples))
+  #   # read in the log and trees
+  #   for(i in 1:K){
+  #     tmp = read.delim(file=logpath[[i]], skip = 4, header = TRUE, nrows = num.samples)
+  #     f.all[i, , ] = t(tmp[, 8:(7 + M)] + log(fct))
+  #   }
+  # }
   if(!coal.return){
     return(f.all)
   }
@@ -115,15 +115,14 @@ process.beast.logs = function(logpath, treepath = NULL, M = 15, time.offset = NU
 #'
 #' @param res.skydive output of combine function
 #' @param fig.title title of the figure
+#' @param ylim y axis limit
+#' @param text.size text sizes
 #' @return a ggplot2 figure
 #' @export
 #'
-plot_skydivide = function(res.skydive, fig.title = "", ylim = c(0.1, 1e5)){
+plot_skydivide = function(res.skydive, fig.title = "", ylim = c(0.1, 1e5), text.size = 20){
   time.grid.recon = res.skydive[[1]]
   N.quant.debiased = res.skydive[[2]]
-  # N.quant.debiased = data.frame(med = apply(N.recon, 2, quantile, prob = 0.5),
-  #                               lo = apply(N.recon, 2, quantile, prob = 0.025),
-  #                               hi = apply(N.recon, 2, quantile, prob = 0.975, na.rm = TRUE))
 
   fig = ggplot2::ggplot(N.quant.debiased, ggplot2::aes(x = time.grid.recon, y = med)) +
     ggplot2::geom_line(size = 2) +

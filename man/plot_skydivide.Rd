@@ -4,12 +4,21 @@
 \alias{plot_skydivide}
 \title{plot function}
 \usage{
-plot_skydivide(res.skydive, fig.title = "", ylim = c(0.1, 1e+05))
+plot_skydivide(
+  res.skydive,
+  fig.title = "",
+  ylim = c(0.1, 1e+05),
+  text.size = 20
+)
 }
 \arguments{
 \item{res.skydive}{output of combine function}
 
 \item{fig.title}{title of the figure}
+
+\item{ylim}{y axis limit}
+
+\item{text.size}{text sizes}
 }
 \value{
 a ggplot2 figure
