@@ -27,15 +27,14 @@ And the development version from [GitHub](https://github.com/) with:
 devtools::install_github("liusf15/skydivide")
 ```
 
-## Example
+The example can be found in the vignette(vignettes/vignette.Rmd)
 
-This is a basic example which shows you how to solve a common problem:
-
-``` r
-library(skydivide)
-## basic example code
-```
-
+<!-- ## Example -->
+<!-- This is a basic example which shows you how to solve a common problem: -->
+<!-- ```{r example} -->
+<!-- library(skydivide) -->
+<!-- ## basic example code -->
+<!-- ``` -->
 <!-- What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so: -->
 <!-- ```{r cars} -->
 <!-- summary(cars) -->
