@@ -30,7 +30,7 @@ combine = function(logpath, treepath, algo = "debias", time.offset = NULL, num.s
     return(list(time.grid.recon, N.quant.debiased))
   }
 
-  res = process.beast.logs(logpath, treepath, time.offset = time.offset, fct = fct, tree.prior = tree.prior, skip = skip, recon.len = recon.len, M = M, coal.return = TRUE)
+  res = process.beast.logs(logpath, treepath, time.offset = time.offset, fct = fct, tree.prior = tree.prior, skip = skip, recon.len = recon.len, coal.return = TRUE)
   f.all = res[[1]]
   t.all = res[[2]]
   cutoff = res[[3]]
