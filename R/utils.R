@@ -118,7 +118,7 @@ process.beast.logs = function(logpath, treepath = NULL, M = 15, time.offset = NU
 #' @return a ggplot2 figure
 #' @export
 #'
-plot_skydive = function(res.skydive, fig.title = "", ylim = c(0.1, 1e5)){
+plot_skydivide = function(res.skydive, fig.title = "", ylim = c(0.1, 1e5)){
   time.grid.recon = res.skydive[[1]]
   N.quant.debiased = res.skydive[[2]]
   # N.quant.debiased = data.frame(med = apply(N.recon, 2, quantile, prob = 0.5),
