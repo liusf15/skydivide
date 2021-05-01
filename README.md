@@ -13,7 +13,7 @@ all the outputs of BEAST and reconstructs the effective population size.
 
 ## Installation
 
-You can install the released version of skydive from
+You can install the released version of skydivide from
 [CRAN](https://CRAN.R-project.org) with:
 
 ``` r
