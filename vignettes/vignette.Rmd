@@ -49,6 +49,7 @@ fig
 
 
 ### Gaussian approximation
+Use `algo = "gaussian"` to run the Gaussian approximation algorithm.
 
 ```{r}
 # combine using Gaussian approximation
