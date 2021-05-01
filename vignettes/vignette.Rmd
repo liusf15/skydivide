@@ -10,58 +10,74 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 6
 )
 ```
 
+We illustrate how to use the skydivide package to combine BEAST outputs obtained using multiple subsets. 
+
 ```{r setup}
 library(skydivide)
-library(ggplot2)
 ```
 
+### Skydivide
+Skydivide is the debiasing algorithm proposed in the paper by S. Liu and J. Palacios.
+
 ```{r }
-logpath = list("inst/extdata/s1.log", "inst/extdata/s2.log") # a list of log file names, output of BEAST
-treepath = list("inst/extdata/s1.trees", "inst/extdata/s2.trees") # a list of tree file names, output of BEAST
-logpath = list(system.file("extdata", "s1.log", package = "skydive"),
-               system.file("extdata", "s2.log", package = "skydive"))
-treepath = list(system.file("extdata", "s1.trees", package = "skydive"),
-               system.file("extdata", "s2.trees", package = "skydive"))
-# combine using skydive
-# res.skydive = combine(logpath, treepath, algo = "debias", num.samples = 100, time.offset = rep(0, 2), skip = 3, tree.prior = "skyline")
-# fig = plot_skydive(res.skydive, "title", ylim = c(0.01, 10))
-# fig
-# # combine using Gaussian approximation
-# res.gaussian = skydive::combine(logpath, treepath, algo = "gaussian", skip = 3, tree.prior = "skyline", fct = 1, time.offset = rep(0, 2))
-# fig = plot_skydive(res.gaussian, "title", ylim = c(0.01, 10))
-# fig
-# combine using Weiszfeld algorithm
-res.weiszfeld = combine(logpath, treepath, algo = "weiszfeld", skip = 3, tree.prior = "skyline", fct = 1, time.offset = rep(0, 2))
-fig = plot_skydive(res.weiszfeld, "title", ylim = c(0.01, 10))
+K = 2  # 2 subsets are used
+# create a list of log file names, output of BEAST
+logpath = list(system.file("extdata", "s1.log", package = "skydivide"),
+               system.file("extdata", "s2.log", package = "skydivide"))
+# create a list of trees file names, output of BEAST
+treepath = list(system.file("extdata", "s1.trees", package = "skydivide"),
+               system.file("extdata", "s2.trees", package = "skydivide"))
+# combine using skydivide
+res.skydivide = combine(logpath, 
+                        treepath, 
+                        algo = "debias",  # run skydivide
+                        num.samples = 1000,  # only the last 1000 samples in the log and tree fies are used in analysis
+                        time.offset = rep(0, K),  # this is added to the times of each subsets
+                        fct = 1,  # this is multiplied to the times of each subsets
+                        skip = 3,  # lines to skip when reading the log files
+                        tree.prior = "skyline"  # tree priors, can be skyline or skyride
+                        )  
+fig = plot_skydivide(res.skydivide, "title", ylim = c(0.01, 10))  # plot the reconstructed effective population sizes
 fig
 ```
 
 
-```{r}
-# n = 50
-# mu = 10
-# K = 2
-# seed = 1
-# logpath = list()
-# treepath = list()
-# traj = "const"
-# for(k in 1:K){
-#   logpath[[k]] = sprintf("/Users/sifanliu/Dropbox/Projects/Scalable Bayesian/scalable_mcmc/Rcode/simulations/skyline/samp_res/samp_n_%d_mu_%d_K_%d_seed_%d_%ssub%d.log", n, mu, K, seed, traj, k)
-#   treepath[[k]] = sprintf("/Users/sifanliu/Dropbox/Projects/Scalable Bayesian/scalable_mcmc/Rcode/simulations/skyline/samp_res/samp_n_%d_mu_%d_K_%d_seed_%d_%ssub%d.trees", n, mu, K, seed, traj, k)
-# }
-# res = combine(logpath, treepath, "debias",  time.offset = rep(0, 2))
+### Gaussian approximation
 
+```{r}
+# combine using Gaussian approximation
+res.gaussian = combine(logpath, 
+                       treepath, 
+                       algo = "gaussian", 
+                       skip = 3, 
+                       num.samples = 1000, 
+                       tree.prior = "skyline", 
+                       fct = 1, # this is multiplied to the times and population sizes of each subsets
+                       time.offset = rep(0, 2)
+                       )
+fig = plot_skydivide(res.gaussian, "title", ylim = c(0.01, 10))
+fig
 ```
 
+### Weiszfeld algorithm
 
-
-
-
-
-
-
+```{r}
+# combine using Weiszfeld algorithm
+res.weiszfeld = combine(logpath, 
+                        treepath, 
+                        algo = "weiszfeld", 
+                        skip = 3, 
+                        tree.prior = "skyline", 
+                        fct = 1, # this is multiplied to the times and population sizes of each subsets
+                        time.offset = rep(0, 2)
+                        )
+fig = plot_skydivide(res.weiszfeld, "title", ylim = c(0.01, 10))
+fig
+```
 
