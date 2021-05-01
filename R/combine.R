@@ -39,7 +39,6 @@ Gaussian.approx = function(f.all){
 #' @examples test_fun(1)
 Weiszfeld = function(f.all, maxiter = 1000){
   K = dim(f.all)[1]
-  cat("K=", K, "\n")
   recon.len = dim(f.all)[2]
   num.samples = dim(f.all)[3]
   mu.mean = apply(f.all, c(1, 2), mean)
@@ -53,7 +52,7 @@ Weiszfeld = function(f.all, maxiter = 1000){
     omega.old = omega
     omega = (1 / dd) / (sum(1 / dd))
     if(norm(as.matrix(omega - omega.old)) < 1e-6){
-      cat("Converged in", t, "steps", "\n")
+      cat("Weiszfeld algorithm onverged in", t, "steps", "\n")
       break
     }
   }
@@ -84,7 +83,7 @@ combine.debiased = function(logpath, treepath, skip = 3, tree.prior = "skyline",
   for(i in 1:K){ # read in data
     tmp = read.table(file=logpath[[i]], skip = skip, header = TRUE)
     total.len = dim(tmp)[1]
-    print(total.len)
+    # print(total.len)
     tmp = tmp[(total.len - num.samples + 1) : total.len, ]
     if (tree.prior == "skyline")
       pop.idx = grep("*popSize*", names(tmp))
@@ -187,12 +186,12 @@ combine.debiased.hetero = function(logpath, treepath, time.offset = NULL, tree.p
   # subset.list = c(1, 2, 3, 4, 5, 7, 10)
   # K = length(subset.list)
   for(k in 1:K){ # read in data
-    cat("Read subset", k, "\n")
+    cat("Reading subset", k, "\n")
     tmp = read.table(file=logpath[[k]], skip = skip, header = TRUE)
     total.len = dim(tmp)[1]
     if(num.samples > total.len)
       num.samples = total.len
-    print(total.len)
+    # print(total.len)
     tmp = tmp[(total.len - num.samples + 1) : total.len, ]
     if (tree.prior == "skyline")
       pop.idx = grep("*popSize*", names(tmp))
@@ -228,8 +227,8 @@ combine.debiased.hetero = function(logpath, treepath, time.offset = NULL, tree.p
   N.debiased = matrix(0, num.samples, n - K - 1)
   coaltimes.comb = matrix(0, num.samples, n - K)  # put all the coalescent times together
   for(i in 1:num.samples){
-    if(i %% 100 == 0 )
-      cat("i=", i, "\n")
+    if(i %% 200 == 0 )
+      cat("Processing ", i / num.samples * 100, "%\n", sep = "")
     coal.tmp = c()
     subset.idx = c()
     lineages.sub = c()
