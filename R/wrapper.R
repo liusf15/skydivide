@@ -17,7 +17,6 @@
 combine = function(logpath, treepath, algo = "debias", time.offset = NULL, num.samples = 1000,
                    recon.len = 100, skip = 3, tree.prior = "skyline", maxiter = 1000, fct = 1){
   K = length(logpath)
-  cat("!!K=", K, "\n")
   if(algo == "debias"){
     # if(!hetero)
     #   res = combine.debiased(logpath, treepath, skip = skip, tree.prior = tree.prior, recon.len = recon.len)
